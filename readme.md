@@ -1,20 +1,36 @@
 ## Socket_Singleton.py
 
-### Socket-based, single-instance Python applications with a clean interface.
+### Socket-based, single-instance Python applications with a clean interface
 
-##### *Without lockfiles, mutexes, dependencies, or tomfoolery.*
+##### *Without lockfiles, mutexes, dependencies, or tomfoolery*
 
-Constructor:
+**Import:**
+
+`From Socket_Singleton import Socket_Singleton`
+
+**Constructor:**
 
 `Socket_Singleton(address="127.0.0.1", port=1337, client=True, strict=True)`
 
-Usage:
+**Usage:**
 
 `Socket_Singleton()`
 
 or, keep a reference:
 
 `app = Socket_Singleton()`
+
+then attach a callback:
+
+```
+def my_callback(args):
+    print(args)
+
+app.trace(my_callback)
+```
+
+Examples:
+---
 
 Say we have an application, app.py, that we want to restrict to a single instance.
 ```
@@ -29,7 +45,7 @@ The first time app.py is launched:
 >> C:\current\working\directory λ python app.py
 >> 
 ```
-app.py runs (Here, app.py blocks until we satisfy input(). Replace this with your own logic.)
+app.py executes normally. (Here, app.py blocks until we satisfy input(). Replace this with your own logic. The examples and basic recipes on this page contain these calls simply for demonstration purposes.)
 
 Now, in another shell, if we try:
 ```
@@ -51,6 +67,8 @@ from Socket_Singleton import Socket_Singleton
 
 def callback(arguments, *args, **kwargs):
     print(arguments)
+    #arg = arguments.pop()
+    #do_a_thing(arg)
 
 def main():
     app = Socket_Singleton()
@@ -82,7 +100,6 @@ Meanwhile, our output for the original `python app.py` shell looks like this:
 We can also **detach a given observer / callback** via `untrace()` with a similar interface. 
 
 `Socket_Singleton.untrace(observer)`
-
 
 ---
 If you'd prefer to **disconnect** from the port prematurely, thus releasing the "lock", there's a `close()` method:
@@ -116,7 +133,7 @@ And in a new shell:
 
 ---
 
-Context manager protocol is implemented as well:
+**Context manager** protocol is implemented as well:
 
 ```
 with Socket_Singleton():
@@ -133,7 +150,7 @@ with Socket_Singleton() as ss:
 
 ---
 
-If we specify the kwarg `strict=False`, we can raise and capture a custom exception, `MultipleSingletonsError`, rather than entirely destroying the process which fails to become the singleton.
+If we specify the kwarg `strict=False`, we can raise and capture a **custom exception**, `MultipleSingletonsError`, rather than entirely destroying the process which fails to become the singleton.
 
 ```
 from Socket_Singleton import Socket_Singleton, MultipleSingletonsError
