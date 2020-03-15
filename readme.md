@@ -23,15 +23,18 @@ or, keep a reference:
 then attach a callback:
 
 ```
-def my_callback(args):
-    print(args)
+def my_callback(arg):
+    print(arg)
 
 app.trace(my_callback)
 ```
 
 **See also:**
 
-https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
+[Common TCP/UDP Port Numbers](https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers)
+
+It is recommended to specify a port in the constructor - this behavior should be made dynamic in future versions*
+
 
 Examples:
 ---
@@ -69,10 +72,9 @@ This attribute is not intended to be accessed directly- it's most likely more co
 
 from Socket_Singleton import Socket_Singleton
 
-def callback(arguments, *args, **kwargs):
-    print(arguments)
-    #arg = arguments.pop()
-    #do_a_thing(arg)
+def callback(argument, *args, **kwargs):
+    print(argument)
+    #do_a_thing(argument)
 
 def main():
     app = Socket_Singleton()
@@ -96,9 +98,9 @@ In another shell, subsequent attempts to `python app.py` now look like this:
 Meanwhile, our output for the original `python app.py` shell looks like this:
 ```
 >> C:\current\working\directory λ python app.py
->> ["foo"]
->> ["foo", "bar"]
->> ["foo", "bar", "baz"]
+>> foo
+>> bar
+>> baz
 ```
 
 We can also **detach a given observer / callback** via `untrace()` with a similar interface. 
@@ -159,14 +161,27 @@ If we specify the kwarg `strict=False`, we can raise and capture a **custom exce
 ```
 from Socket_Singleton import Socket_Singleton, MultipleSingletonsError
 
-try:
-    Socket_Singleton(strict=False)
-    input("We are the Socket Singleton.")
-except MultipleSingletonsError:
-    input("We are not the Socket Singleton.")
-else:
-    #Do your very_exclusive_thing() here. 
-finally:
-    print("Done.")
+def callback(arg):
+    print(f"callback: {arg}")
+
+def main():
+    try:
+        app = Socket_Singleton(strict=False)
+    except MultipleSingletonsError as err:
+        print("We are not the singleton.")
+        print(err)
+    else:
+        print("We are the singleton!")
+        app.trace(callback)
+        [print(arg) for arg in app.arguments]
+        # print(app)
+        # print(repr(app))
+        # help(app)
+
+    input()
+
+if __name__ == "__main__":
+    main()
+
 
 ```

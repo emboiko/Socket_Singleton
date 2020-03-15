@@ -1,6 +1,7 @@
 from sys import argv
 from socket import socket
 from threading import Thread
+from collections import deque
 
 
 class Socket_Singleton:
@@ -50,7 +51,7 @@ class Socket_Singleton:
 
         self.address = address
         self.port = port
-        self.arguments = [arg for arg in argv[1:]]
+        self.arguments = deque([arg for arg in argv[1:]])
     
         self._client = client
         self._strict = strict
@@ -154,7 +155,7 @@ class Socket_Singleton:
         """Call all observers with their respective args, kwargs"""
 
         [
-            observer(self.arguments, *args[0], **args[1])
+            observer(self.arguments.pop(), *args[0], **args[1])
             for observer, args 
             in self._observers.items()
         ]
