@@ -33,7 +33,7 @@ app.trace(my_callback)
 
 [Common TCP/UDP Port Numbers](https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers)
 
-It is recommended to specify a port in the constructor - this behavior should be made dynamic in future versions*
+It is recommended to specify a port in the constructor*
 
 
 Examples:

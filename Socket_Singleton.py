@@ -50,7 +50,7 @@ class Socket_Singleton:
         """
 
         self.address = address
-        self.port = port
+        self.port = int(port)
         self.arguments = deque([arg for arg in argv[1:]])
     
         self._client = client
@@ -60,11 +60,14 @@ class Socket_Singleton:
         self._sock = socket()
         try:
             self._sock.bind((self.address, self.port))
+        
         except OSError as err:
             if err.args[0] != 10048:
                 raise
+            
             if self._client:
                 self._create_client()
+            
             if self._strict:
                 raise SystemExit
             else:
@@ -73,6 +76,7 @@ class Socket_Singleton:
                     f"@ {self.address} on port {self.port}. Multiple "\
                     f"instances are disallowed in the current context."
                 ) from None
+        
         else:
             self._running = True
             self._thread = Thread(target=self._create_server, daemon=True)
