@@ -10,7 +10,7 @@
 
 **Constructor:**
 
-`Socket_Singleton(address="127.0.0.1", port=1337, client=True, strict=True)`
+`Socket_Singleton(address="127.0.0.1", port=1337, timeout=0, client=True, strict=True)`
 
 **Usage:**
 
@@ -20,7 +20,7 @@ or, keep a reference:
 
 `app = Socket_Singleton()`
 
-then attach a callback:
+then attach a callback, and capture arguments from subsequent calls to your application:
 
 ```
 def my_callback(arg):
@@ -155,6 +155,11 @@ with Socket_Singleton() as ss:
 ```
 
 ---
+**Timeout**
+
+A duration in seconds, specifying how long to hold the socket. Defaults to 0 (no timeout, keep-alive). Countdown starts at the end of initialization, immediately after the socket is bound successfully. 
+
+---
 
 If we specify the kwarg `strict=False`, we can raise and capture a **custom exception**, `MultipleSingletonsError`, rather than entirely destroying the process which fails to become the singleton.
 
@@ -182,6 +187,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
 ```

@@ -1,6 +1,6 @@
 from sys import argv
 from socket import socket
-from threading import Thread
+from threading import Thread, Timer
 from collections import deque
 
 
@@ -16,6 +16,10 @@ class Socket_Singleton:
         1337 by default, though prefer the use of range(49152, 65536).
         Doing this dynamically would be better, and will be implemented soon. 
 
+        timeout: (int) A duration in seconds, specifying how long to hold the socket.
+        Defaults to 0 (no timeout, keep-alive). If > 0, cowntdown starts at the very 
+        end of init, immediately after a successful socket.bind()
+
         client: (bool) If we don't care about collecting arguments from subsequent
         calls to the application via trace(), this can be specified False.
         True by default.
@@ -29,6 +33,7 @@ class Socket_Singleton:
         self,
         address:str="127.0.0.1",
         port:int=1337,
+        timeout:int=0,
         client:bool=True,
         strict:bool=True
         ):
@@ -45,12 +50,15 @@ class Socket_Singleton:
             will either:
 
                 -Raise a custom exception if we're not in strict mode
-                -Silently & immediately die.
-                -Immediately die after sending their arguments to the host.
+                -Silently & immediately close.
+                -Immediately close after sending their arguments to the host.
+                -Close after a timeout.
         """
 
         self.address = address
         self.port = int(port)
+        self.timeout = int(timeout)
+
         self.arguments = deque([arg for arg in argv[1:]])
     
         self._client = client
@@ -80,7 +88,11 @@ class Socket_Singleton:
         else:
             self._running = True
             self._thread = Thread(target=self._create_server, daemon=True)
+            self._timer = Timer(self.timeout, self.close)
             self._thread.start()
+
+            if self.timeout > 0:
+                self._timer.start()
 
 
     def __str__(self):
@@ -184,7 +196,7 @@ class Socket_Singleton:
             Artificially satisfies the blocking call to accept() in
             self._create_server()
         """
-        
+
         self._running = False
         dummy_socket = socket()
         with dummy_socket as ds:
