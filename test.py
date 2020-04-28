@@ -1,6 +1,7 @@
 import unittest
+from time import sleep
 from subprocess import run
-from Socket_Singleton import Socket_Singleton, MultipleSingletonsError
+from src.Socket_Singleton import Socket_Singleton, MultipleSingletonsError
 
 
 class TestMain(unittest.TestCase):
@@ -78,6 +79,7 @@ class TestMain(unittest.TestCase):
 
     def tearDown(self):
         self.app.close()
+        sleep(1)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,11 @@
 
 ### Socket-based, single-instance Python applications with a clean interface
 
-##### *Without lockfiles, mutexes, dependencies, or tomfoolery*
+###### *Without lockfiles, mutexes, dependencies, or tomfoolery*
+
+**Install:**
+
+`pip install Socket_Singleton`
 
 **Import:**
 

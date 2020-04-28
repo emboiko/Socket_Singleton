@@ -1,4 +1,4 @@
-from Socket_Singleton import Socket_Singleton, MultipleSingletonsError
+from src.Socket_Singleton import Socket_Singleton, MultipleSingletonsError
 from sys import argv
 
 
