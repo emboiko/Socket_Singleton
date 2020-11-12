@@ -27,15 +27,20 @@ class Socket_Singleton:
         strict: (bool) This controls how strongly we enforce our singleton status.
         If set to False, we'll raise a specific exception instead of a hard,
         immediate raise of SystemExit (MultipleSingletonsError).
+
+        max_clients: (int) A positive integer describing how many client processes
+        to capture before internally calling close() and releasing the port. Defaults
+        to 0 (no maximum)
     """
-    
+
     def __init__(
         self,
         address:str="127.0.0.1",
         port:int=1337,
         timeout:int=0,
         client:bool=True,
-        strict:bool=True
+        strict:bool=True,
+        max_clients:int=0,
         ):
         """
             Initializer uses exception handler control flow to determine
@@ -53,17 +58,23 @@ class Socket_Singleton:
                 -Silently & immediately close.
                 -Immediately close after sending their arguments to the host.
                 -Close after a timeout.
+                -Close after connecting with a set number of client processes.
         """
 
         self.address = address
         self.port = int(port)
         self.timeout = int(timeout)
+        self.max_clients = int(max_clients)
+        
+        if self.max_clients < 0:
+            raise ValueError("max_clients must be equal to or greater than 0")
 
-        self.arguments = deque([arg for arg in argv[1:]])
+        self._arguments = deque([arg for arg in argv[1:]])
     
         self._client = client
         self._strict = strict
         self._observers = dict()
+        self._clients = 0
 
         self._sock = socket()
         try:
@@ -109,7 +120,7 @@ class Socket_Singleton:
         f"@ {self.address} on port {self.port}\n"\
         f"@ {hex(id(self))} "\
         f"w/ {len(self._observers.keys())} registered observer(s)\n"\
-        f"client={self._client}, strict={self._strict}"
+        f"client={self._client}, strict={self._strict}, max_clients={self.max_clients}"
 
 
     def __enter__(self):
@@ -133,17 +144,22 @@ class Socket_Singleton:
             If the socket bound successfully, a threaded server will
             continuously listen for & receive connections & data from
             potential clients. Arguments passed from clients are 
-            collected into self.arguments
+            collected into self._arguments
         """
 
         with self._sock as s:
             s.listen()
             while self._running:
-                connection, address = s.accept()
+                connection, _ = s.accept()
                 with connection:
+                    self._clients += 1
+
                     data = connection.recv(1024)
                     args = data.decode().split("\n")
-                    [self._append_args(arg) for arg in args if arg]
+                    [self._append_arg(arg) for arg in args if arg]
+
+                    if (self.max_clients) and (self._clients >= self.max_clients):
+                        self.close()
 
 
     def _create_client(self):
@@ -160,31 +176,48 @@ class Socket_Singleton:
                 s.send("\n".encode())
 
 
-    def _append_args(self, arg):
-        """Pseudo-setter for self._arguments"""
+    @property
+    def arguments(self):
+        """Args shouldn't be dealt with manually, or at least not here"""
 
-        self.arguments.append(arg)
+        return self._arguments
+
+
+    @property
+    def clients(self):
+        """A getter for the clients counter"""
+
+        return self._clients
+
+
+    def _append_arg(self, arg):
+        """Setter/pusher for self._arguments, should only be called internally"""
+
+        self._arguments.append(arg)
         self._update_observers()
 
 
     def _update_observers(self):
-        """Call all observers with their respective args, kwargs"""
+        """
+            Call all observers with their respective args, kwargs
+            (publisher for observer pattern)
+        """
 
         [
-            observer(self.arguments.pop(), *args[0], **args[1])
+            observer(self._arguments.pop(), *args[0], **args[1])
             for observer, args 
             in self._observers.items()
         ]
 
 
     def trace(self, observer, *args, **kwargs):
-        """Attach a callback w/ arbitrary # of args & kwargs"""
+        """Attach (subscribe) a callback w/ arbitrary # of args & kwargs"""
 
         self._observers[observer] = args, kwargs
 
 
     def untrace(self, observer):
-        """Detach a callback"""
+        """Detach (unsubscribe) a callback"""
 
         self._observers.pop(observer)
 

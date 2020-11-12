@@ -10,8 +10,8 @@ class TestMain(unittest.TestCase):
         self.traced_args = []
 
 
-    def test_defaults(self):
-        result = run("test_app.py defaults", shell=True, capture_output=True)
+    def test_default(self):
+        result = run("test_app.py default", shell=True, capture_output=True)
         self.assertFalse(result.stdout)
 
 
@@ -21,7 +21,7 @@ class TestMain(unittest.TestCase):
 
     
     def test_no_client(self):
-        result = run("test_app.py no_client foo bar baz", shell=True, capture_output=True)
+        run("test_app.py no_client foo bar baz", shell=True, capture_output=True)
         self.assertNotIn("noclient", self.app.arguments)
         self.assertNotIn("foo", self.app.arguments)
         self.assertNotIn("bar", self.app.arguments)
@@ -29,8 +29,8 @@ class TestMain(unittest.TestCase):
         
 
     def test_client(self):
-        run("test_app.py defaults foo bar baz", shell=True, capture_output=True)
-        self.assertIn("defaults", self.app.arguments)
+        run("test_app.py default foo bar baz", shell=True, capture_output=True)
+        self.assertIn("default", self.app.arguments)
         self.assertIn("foo", self.app.arguments)
         self.assertIn("bar", self.app.arguments)
         self.assertIn("baz", self.app.arguments)
@@ -53,15 +53,15 @@ class TestMain(unittest.TestCase):
 
     def test_trace(self):
         self.app.trace(self.traced)
-        run("test_app.py defaults foo bar baz", shell=True, capture_output=True)
+        run("test_app.py default foo bar baz", shell=True, capture_output=True)
         self.assertEqual(len(self.traced_args), 4)
 
 
     def test_untrace(self):
         self.app.trace(self.traced)
-        run("test_app.py defaults foo bar baz", shell=True, capture_output=True)
+        run("test_app.py default foo bar baz", shell=True, capture_output=True)
         self.app.untrace(self.traced)
-        run("test_app.py defaults foo bar baz", shell=True, capture_output=True)
+        run("test_app.py default foo bar baz", shell=True, capture_output=True)
         self.assertEqual(len(self.traced_args), 4)
 
 
@@ -71,8 +71,8 @@ class TestMain(unittest.TestCase):
 
     def test_slam_args(self):
         self.app.arguments.clear()
-        for i in range(10):
-            run("test_app.py defaults foo bar bin baz", shell=True)
+        for _ in range(10):
+            run("test_app.py default foo bar bin baz", shell=True)
 
         self.assertEqual(len(self.app.arguments), 50)
 

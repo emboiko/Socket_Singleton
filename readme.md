@@ -14,7 +14,7 @@
 
 **Constructor:**
 
-`Socket_Singleton(address="127.0.0.1", port=1337, timeout=0, client=True, strict=True)`
+`Socket_Singleton(address="127.0.0.1", port=1337, timeout=0, client=True, strict=True, max_clients=0)`
 
 **Usage:**
 
@@ -66,8 +66,7 @@ Now, in another shell, if we try:
 The interpreter exits immediately and we end up back at the prompt.
 
 ---
-We can also get access to **arguments** passed from subsequent attempts to run `python app.py` with the `arguments` attribute.
-This attribute is not intended to be accessed directly- it's most likely more convenient to use the `trace()` method. This allows you to **register a callback**, which gets called when `arguments` is appended (as other instances *try* to run).
+We can also get access to **arguments** passed from subsequent attempts to run `python app.py` with the `arguments` property, although is not intended to be accessed directly- it's most likely more convenient to use the `trace()` method. This allows you to **register a callback**, which gets called when `arguments` is appended (as other instances *try* to run).
 
 `Socket_Singleton.trace(observer, *args, **kwargs)`
 
@@ -159,13 +158,27 @@ with Socket_Singleton() as ss:
 ```
 
 ---
-**Timeout**
+- `timeout`
 
 A duration in seconds, specifying how long to hold the socket. Defaults to 0 (no timeout, keep-alive). Countdown starts at the end of initialization, immediately after the socket is bound successfully. 
 
 ---
 
-If we specify the kwarg `strict=False`, we can raise and capture a **custom exception**, `MultipleSingletonsError`, rather than entirely destroying the process which fails to become the singleton.
+- `clients`
+
+An integer property describing how many client processes have connected since instantiation.
+
+---
+
+- `max_clients`
+
+A positive integer describing how many client processes to capture before internally calling close() and releasing the port. Defaults to 0 (no maximum)
+
+---
+
+- `strict=False`
+ 
+We can raise and capture a custom **exception**, `MultipleSingletonsError`, rather than entirely destroying the process which fails to become the singleton.
 
 ```
 from Socket_Singleton import Socket_Singleton, MultipleSingletonsError
