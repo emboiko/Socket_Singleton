@@ -6,7 +6,7 @@
 
 **Install:**
 
-`pip install Socket_Singleton`
+`pip install Socket_Singleton -U`
 
 **Import:**
 
