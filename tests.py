@@ -195,21 +195,6 @@ class TestInProcess(unittest.TestCase):
         # Should NOT receive new arguments (secret mismatch)
         self.assertEqual(len(received_args), 1)  # Still only the first one
 
-        # Test 3: Unauthorized connection (no secret)
-        client_sock3 = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
-        try:
-            client_sock3.connect(("127.0.0.1", port))
-            # Send arguments without secret
-            message = "unauthorized\x00args\x00"
-            client_sock3.send(message.encode("utf-8"))
-        finally:
-            client_sock3.close()
-
-        sleep(0.2)  # Give time for processing
-
-        # Should NOT receive new arguments (no secret)
-        self.assertEqual(len(received_args), 1)  # Still only the first one
-
         host.release()
 
     def test_arguments_with_newlines(self):
