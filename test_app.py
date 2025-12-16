@@ -179,6 +179,9 @@ def main():
         port = int(argv[2]) if len(argv) > 2 else 1337
         wait_seconds = int(argv[3]) if len(argv) > 3 else 1
         verbose_host(port, wait_seconds)
+    elif command == "debug":
+        # Debug block - hardcode your debugging scenario here for use with a debugger:
+        Socket_Singleton()
 
 
 if __name__ == "__main__":

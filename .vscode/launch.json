@@ -1,0 +1,62 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Debug tests.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Debug test_app.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_app.py",
+            "args": [
+                "debug"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Run All Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "unittest",
+            "args": [
+                "discover",
+                "-s",
+                ".",
+                "-p",
+                "tests.py"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Debug Specific Test",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "unittest",
+            "args": [
+                "tests.${input:testClass}.${input:testMethod}"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testClass",
+            "type": "promptString",
+            "description": "Test class name (e.g., InProcess, SingletonEnforcement)"
+        },
+        {
+            "id": "testMethod",
+            "type": "promptString",
+            "description": "Test method name (e.g., test_basic_singleton)"
+        }
+    ]
+}
